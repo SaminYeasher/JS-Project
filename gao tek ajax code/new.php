@@ -1,6 +1,6 @@
 <?php
 add_action('wp_enqueue_scripts', 'wp_parent_styles');
-function wp_enqueue_styles(){
+function enqueue_parent_styles(){
     wp_enqueue_style('parent-style', get_template_directory_uri(). '/style.css');
 
 }
@@ -15,8 +15,7 @@ function asearch_func($atts) {
     $image = $atts ["image"];
     // Fetch product categories to display in the dropdown
     $categories = get_terms(array(
-        'taxonomy' => 'product_cat',
-		'hide_empty' => true,
+        'taxonomy' => 'product_cat', 'hide_empty' => true,
     ));
 
     // Search form HTML
