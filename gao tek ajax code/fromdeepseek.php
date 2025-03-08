@@ -26,8 +26,8 @@ function asearch_func($atts) {
     // Search form HTML
     $sForam = '<div class="search_bar">
         <form class="asearch" id="asearch' . $asearch_first_call . '" action="/" method="get" autocomplete="off">
-            <input type="text" name="s" placeholder="Search products..." id="keyword" class="input_search">
-            <button type="button" id="mybtn">🔍</button>
+            <input type="text" name="s" placeholder="Search products..." id="keyword" class="input_search" onkeyup="searchFetch(this)">
+            <button id="mybtn">🔍</button>
             <select name="category" id="category">
                 <option value="">All Categories</option>';
     foreach ($categories as $category) {
@@ -35,17 +35,17 @@ function asearch_func($atts) {
     }
     $sForam .= '</select>
         </form>
-        <div class="search_result" id="datafetch">
+        <div class="search_result" id="datafetch" style="display: none;">
             <ul><li>Please wait..</li></ul>
         </div>
     </div>';
 
     // JavaScript for AJAX functionality
     $java = '<script>
-        function searchFetch() {
-            var searchInput = document.getElementById("keyword");
+        function searchFetch(e) {
+            var datafetch = e.parentElement.nextElementSibling;
+            var searchInput = e;
             var categoryInput = document.getElementById("category");
-            var datafetch = document.getElementById("datafetch");
 
             if (searchInput.value.trim().length > 0) {
                 datafetch.style.display = "block";
@@ -53,8 +53,7 @@ function asearch_func($atts) {
                 datafetch.style.display = "none";
             }
 
-            var formdata = new FormData();
-            formdata.append("s", searchInput.value);
+            var formdata = new FormData(searchInput.parentElement);
             formdata.append("source", "' . $source . '");
             formdata.append("image", "' . $image . '");
             formdata.append("category", categoryInput.value);
@@ -79,124 +78,109 @@ function asearch_func($atts) {
             }
         }
 
-        // Add event listener to the search button
-        document.getElementById("mybtn").addEventListener("click", function() {
-			event.preventDefault();
-            searchFetch();
-        });
-
-        // Add event listener to the search input for real-time search
-        document.getElementById("keyword").addEventListener("keyup", function() {
-            searchFetch();
-        });
-		 document.querySelector("form.asearch").addEventListener("submit", function(event) {
-            event.preventDefault();
-            searchFetch();
-        });
-
-        // Hide search results when clicking outside
         document.addEventListener("click", function(e) {
-            if (!e.target.closest(".search_bar")) {
-                document.getElementById("datafetch").style.display = "none";
+            if (!document.activeElement.classList.contains("input_search")) {
+                [...document.querySelectorAll("div.search_result")].forEach(e => e.style.display = "none");
+            } else {
+                if (e.target.value.trim().length > 0) {
+                    e.target.parentElement.nextElementSibling.style.display = "block";
+                }
             }
         });
-		
 
-        // Trigger search when category is changed
         document.getElementById("category").addEventListener("change", function() {
-            searchFetch();
+            var searchInput = document.getElementById("keyword");
+            if (searchInput.value.trim().length > 0) {
+                searchFetch(searchInput);
+            }
         });
     </script>';
 
     // CSS for styling the search results
     $css = '<style>
-        .search_bar {
-            position: relative;
+        form.asearch {
+            display: flex;
             max-width: 600px;
             margin: 0 auto;
         }
 
-        form.asearch {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
         form.asearch input#keyword {
-            border: 1px solid #ccc;
+            border: none;
             width: 100%;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 16px;
+            padding-left: 28px;
+            border-radius: 30px;
+            background-color: white;
+            margin-right: -39px;
         }
 
         form.asearch button#mybtn {
-            padding: 8px 16px;
+            padding: 5px;
             cursor: pointer;
-            background: #ebf3f7;
-            border: 2px solid black;
-            color: black;
-            border-radius: 5px;
-            font-size: 30px;
-        }
-		
-        form.asearch select#category {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        .search_result {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
             background: white;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            max-height: 300px;
-            overflow-y: auto;
+            border: none;
+            margin-right: 20px;
+            margin-top: 3px;
+            box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0);
         }
 
-        .search_result ul {
+        form.asearch select#category {
+            border: none;
+            padding: 6px;
+            width: 150px;
+            min-width: 126px;
+            cursor: pointer;
+            background-color: white;
+            margin-left: 10px;
+            margin-top: 2px;
+        }
+
+        div#datafetch {
+            background: white;
+            z-index: 10;
+            position: absolute;
+            max-height: 425px;
+            overflow: auto;
+            box-shadow: 0px 15px 15px #00000036;
+            width: 100%;
+            max-width: 431px;
+            top: 50px;
+            padding: 5px 0;
+        }
+
+        div.search_result ul {
             padding: 0;
-            margin: 0;
             list-style: none;
+            margin: 0;
         }
 
-        .search_result ul a {
+        div.search_result ul a {
             display: flex;
             align-items: center;
             padding: 10px;
             text-decoration: none;
-            color: #333;
+            color: inherit;
         }
 
-        .search_result ul a:hover {
-            background-color: #f9f9f9;
+        div.search_result ul a:hover {
+            background-color: #f3f3f3;
         }
 
-        .search_result ul a img {
-            width: 50px;
-            height: 50px;
+        div.search_result ul a img {
+            height: 60px;
+            width: auto;
             margin-right: 10px;
-            border-radius: 5px;
         }
 
-        .search_result ul a .product-info {
+        div.search_result ul a .product-info {
             flex: 1;
         }
 
-        .search_result ul a .product-info .title {
+        div.search_result ul a .product-info .title {
             font-weight: bold;
-            font-size: 14px;
+            color: #3f3f3f;
         }
 
-        .search_result ul a .product-info .description {
+        div.search_result ul a .product-info .description {
             font-size: 12px;
             color: #777;
             margin-top: 5px;
@@ -244,7 +228,7 @@ function asearch() {
             $product_image = wp_get_attachment_image_src(get_post_thumbnail_id(), 'thumbnail');
             ?>
             <a href="<?php echo esc_url(get_permalink()); ?>">
-                <?php if ($product_image && !empty($product_image[0])) : ?>
+                <?php if ($product_image && !empty($product_image[0]) : ?>
                     <img src="<?php echo esc_url($product_image[0]); ?>" alt="<?php the_title(); ?>">
                 <?php endif; ?>
                 <div class="product-info">

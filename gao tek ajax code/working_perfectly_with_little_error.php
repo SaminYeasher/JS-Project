@@ -81,16 +81,11 @@ function asearch_func($atts) {
 
         // Add event listener to the search button
         document.getElementById("mybtn").addEventListener("click", function() {
-			event.preventDefault();
             searchFetch();
         });
 
         // Add event listener to the search input for real-time search
         document.getElementById("keyword").addEventListener("keyup", function() {
-            searchFetch();
-        });
-		 document.querySelector("form.asearch").addEventListener("submit", function(event) {
-            event.preventDefault();
             searchFetch();
         });
 
@@ -100,7 +95,6 @@ function asearch_func($atts) {
                 document.getElementById("datafetch").style.display = "none";
             }
         });
-		
 
         // Trigger search when category is changed
         document.getElementById("category").addEventListener("change", function() {
@@ -139,7 +133,7 @@ function asearch_func($atts) {
             border-radius: 5px;
             font-size: 30px;
         }
-		
+
         form.asearch select#category {
             padding: 10px;
             border: 1px solid #ccc;
